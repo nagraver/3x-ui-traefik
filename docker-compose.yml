@@ -7,16 +7,30 @@ services:
             - $PWD/cert/:/root/cert/
         labels:
             traefik.enable: "true"
-            traefik.http.routers.xui-http.rule: Host(`${APP_HOST}`)
+
+            traefik.http.routers.xui-http.rule: Host(`${PANEL_HOST}`)
             traefik.http.routers.xui-http.entrypoints: web
             traefik.http.routers.xui-http.middlewares: xui-https-redirect
             traefik.http.middlewares.xui-https-redirect.redirectscheme.scheme: https
-            traefik.http.routers.xui-https.rule: Host(`${APP_HOST}`)
+
+            traefik.http.routers.xui-https.rule: Host(`${PANEL_HOST}`)
             traefik.http.routers.xui-https.entrypoints: websecure
             traefik.http.routers.xui-https.tls: "true"
             traefik.http.routers.xui-https.tls.certresolver: le
             traefik.http.routers.xui-https.service: xui-panel
-            traefik.http.services.xui-panel.loadbalancer.server.port: "2053"
+            traefik.http.services.xui-panel.loadbalancer.server.port: "${PANEL_PORT}"
+
+            traefik.http.routers.xui-sub-http.rule: Host(`${SUBSCRIPTION_HOST}`)
+            traefik.http.routers.xui-sub-http.entrypoints: web
+            traefik.http.routers.xui-sub-http.middlewares: xui-https-redirect
+
+            traefik.http.routers.xui-sub-https.rule: Host(`${SUBSCRIPTION_HOST}`)
+            traefik.http.routers.xui-sub-https.entrypoints: websecure
+            traefik.http.routers.xui-sub-https.tls: "true"
+            traefik.http.routers.xui-sub-https.tls.certresolver: le
+            traefik.http.routers.xui-sub-https.service: xui-sub
+            traefik.http.services.xui-sub.loadbalancer.server.port: "${SUBSCRIPTION_PORT}"
+
             traefik.docker.network: proxy
         tty: true
         ports:
