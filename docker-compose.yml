@@ -1,17 +1,17 @@
 services:
     3xui:
-        image: ghcr.io/mhsanaei/3x-ui:latest
+        image: ghcr.io/mhsanaei/3x-ui:3.3.0
         container_name: 3xui_app
         volumes:
             - $PWD/db/:/etc/x-ui/
-            - $PWD/cert/:/root/cert/
         labels:
             traefik.enable: "true"
+            traefik.http.middlewares.https-redirect.redirectscheme.scheme: https
 
             traefik.http.routers.xui-http.rule: Host(`${PANEL_HOST}`)
             traefik.http.routers.xui-http.entrypoints: web
-            traefik.http.routers.xui-http.middlewares: xui-https-redirect
-            traefik.http.middlewares.xui-https-redirect.redirectscheme.scheme: https
+            traefik.http.routers.xui-http.service: xui-panel
+            traefik.http.routers.xui-http.middlewares: https-redirect
 
             traefik.http.routers.xui-https.rule: Host(`${PANEL_HOST}`)
             traefik.http.routers.xui-https.entrypoints: websecure
@@ -22,7 +22,8 @@ services:
 
             traefik.http.routers.xui-sub-http.rule: Host(`${SUBSCRIPTION_HOST}`)
             traefik.http.routers.xui-sub-http.entrypoints: web
-            traefik.http.routers.xui-sub-http.middlewares: xui-https-redirect
+            traefik.http.routers.xui-sub-http.service: xui-sub
+            traefik.http.routers.xui-sub-http.middlewares: https-redirect
 
             traefik.http.routers.xui-sub-https.rule: Host(`${SUBSCRIPTION_HOST}`)
             traefik.http.routers.xui-sub-https.entrypoints: websecure
@@ -32,12 +33,14 @@ services:
             traefik.http.services.xui-sub.loadbalancer.server.port: "${SUBSCRIPTION_PORT}"
 
             traefik.docker.network: proxy
-        tty: true
+
+        # Expose 443 for Reality; ensure no other host service uses this port.
         ports:
-            - "8443:8443"
+            - "443:443" 
         networks:
             - default
             - proxy
+        tty: true
         restart: unless-stopped
 
 networks:
