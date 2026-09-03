@@ -4,6 +4,7 @@ services:
         container_name: 3xui_app
         volumes:
             - $PWD/db/:/etc/x-ui/
+            
         labels:
             traefik.enable: "true"
             traefik.docker.network: proxy
