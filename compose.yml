@@ -1,45 +1,54 @@
 services:
     3xui:
-        image: ghcr.io/mhsanaei/3x-ui:3.7.0
+        image: ghcr.io/mhsanaei/3x-ui:3.3.0
         container_name: 3xui_app
         volumes:
             - $PWD/db/:/etc/x-ui/
         labels:
             traefik.enable: "true"
+            traefik.docker.network: proxy
             traefik.http.middlewares.https-redirect.redirectscheme.scheme: https
 
-            traefik.http.routers.xui-http.rule: Host(`${HOST}`) && PathPrefix(`${PANEL_PREFIX}`)
+            # Panel HTTP
+            traefik.http.routers.xui-http.rule: Host(`${PANEL_HOST}`) && PathPrefix(`${PANEL_PREFIX}`)
             traefik.http.routers.xui-http.entrypoints: web
             traefik.http.routers.xui-http.service: xui-panel
             traefik.http.routers.xui-http.middlewares: https-redirect
 
-            traefik.http.routers.xui-https.rule: Host(`${HOST}`) && PathPrefix(`${PANEL_PREFIX}`)
+            # Panel HTTPS
+            traefik.http.routers.xui-https.rule: Host(`${PANEL_HOST}`) && PathPrefix(`${PANEL_PREFIX}`)
             traefik.http.routers.xui-https.entrypoints: websecure
             traefik.http.routers.xui-https.tls: "true"
             traefik.http.routers.xui-https.tls.certresolver: le
             traefik.http.routers.xui-https.service: xui-panel
             traefik.http.services.xui-panel.loadbalancer.server.port: "${PANEL_PORT}"
 
-            traefik.http.routers.xui-sub-http.rule: Host(`${HOST}`) && PathPrefix(`${SUB_PREFIX}`)
+            # Subscription HTTP
+            traefik.http.routers.xui-sub-http.rule: Host(`${PANEL_HOST}`) && PathPrefix(`${SUB_PREFIX}`)
             traefik.http.routers.xui-sub-http.entrypoints: web
             traefik.http.routers.xui-sub-http.service: xui-sub
             traefik.http.routers.xui-sub-http.middlewares: https-redirect
 
-            traefik.http.routers.xui-sub-https.rule: Host(`${HOST}`) && PathPrefix(`${SUB_PREFIX}`)
+            # Subscription HTTPS
+            traefik.http.routers.xui-sub-https.rule: Host(`${PANEL_HOST}`) && PathPrefix(`${SUB_PREFIX}`)
             traefik.http.routers.xui-sub-https.entrypoints: websecure
             traefik.http.routers.xui-sub-https.tls: "true"
             traefik.http.routers.xui-sub-https.tls.certresolver: le
             traefik.http.routers.xui-sub-https.service: xui-sub
             traefik.http.services.xui-sub.loadbalancer.server.port: "${SUB_PORT}"
 
-            traefik.docker.network: proxy
+            # VLESS REALITY
+            traefik.tcp.routers.xui-reality.rule: "HostSNI(`${REALITY_SNI}`)"
+            traefik.tcp.routers.xui-reality.entrypoints: websecure
+            traefik.tcp.routers.xui-reality.tls: "true"
+            traefik.tcp.routers.xui-reality.tls.passthrough: "true"
+            traefik.tcp.routers.xui-reality.service: xui-reality
+            traefik.tcp.services.xui-reality.loadbalancer.server.port: "${REALITY_PORT}"
 
-        # Expose 443 for Reality; ensure no other host service uses this port.
-        ports:
-            - "443:443"
         networks:
             - default
             - proxy
+
         tty: true
         restart: unless-stopped
 
