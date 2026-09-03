@@ -44,7 +44,7 @@ services:
             traefik.tcp.routers.xui-reality.tls: "true"
             traefik.tcp.routers.xui-reality.tls.passthrough: "true"
             traefik.tcp.routers.xui-reality.service: xui-reality
-            traefik.tcp.services.xui-reality.loadbalancer.server.port: "${REALITY_PORT}"
+            traefik.tcp.services.xui-reality.loadbalancer.server.port: 443
 
         networks:
             - default
