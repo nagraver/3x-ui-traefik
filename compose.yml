@@ -1,10 +1,10 @@
 services:
     3xui:
-        image: ghcr.io/mhsanaei/3x-ui:3.3.0
+        image: ghcr.io/mhsanaei/3x-ui:3.7.0
         container_name: 3xui_app
         volumes:
             - $PWD/db/:/etc/x-ui/
-            
+
         labels:
             traefik.enable: "true"
             traefik.docker.network: proxy
@@ -39,7 +39,7 @@ services:
             traefik.http.services.xui-sub.loadbalancer.server.port: "${SUB_PORT}"
 
             # VLESS REALITY
-            traefik.tcp.routers.xui-reality.rule: "HostSNI(`${REALITY_SNI}`)"
+            traefik.tcp.routers.xui-reality.rule: "HostSNI(`www.sony.com`)"
             traefik.tcp.routers.xui-reality.entrypoints: websecure
             traefik.tcp.routers.xui-reality.tls: "true"
             traefik.tcp.routers.xui-reality.tls.passthrough: "true"
